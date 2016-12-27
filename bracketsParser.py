@@ -19,8 +19,8 @@ def bracketsParser(str, dict):
 
         if p[0]:
           if p[1] == revDict[m[1]]:
-            data[i][0] = dst
-            data[j][0] = dst
+            p[0] = dst
+            m[0] = dst
 
             break
           else:
@@ -50,14 +50,15 @@ dict = {
   '{': '}'
 }
 
-assert bracketsParser('{}[]()',   dict) == -1, "test isn't passed"
-assert bracketsParser('{[(]}',    dict) ==  2, "test isn't passed"
-assert bracketsParser('[{}{}]()', dict) == -1, "test isn't passed"
-assert bracketsParser('[{}{}](}', dict) ==  6, "test isn't passed"
-assert bracketsParser('{[(',      dict) ==  0, "test isn't passed"
-assert bracketsParser('(}{)',     dict) ==  0, "test isn't passed"
-assert bracketsParser(')[',       dict) ==  0, "test isn't passed"
-assert bracketsParser(']{',       dict) ==  0, "test isn't passed"
-assert bracketsParser('([)]',     dict) ==  1, "test isn't passed"
+if __name__ == '__main__':
+  assert bracketsParser('{}[]()',   dict) == -1, "test isn't passed"
+  assert bracketsParser('{[(]}',    dict) ==  2, "test isn't passed"
+  assert bracketsParser('[{}{}]()', dict) == -1, "test isn't passed"
+  assert bracketsParser('[{}{}](}', dict) ==  6, "test isn't passed"
+  assert bracketsParser('{[(',      dict) ==  0, "test isn't passed"
+  assert bracketsParser('(}{)',     dict) ==  0, "test isn't passed"
+  assert bracketsParser(')[',       dict) ==  0, "test isn't passed"
+  assert bracketsParser(']{',       dict) ==  0, "test isn't passed"
+  assert bracketsParser('([)]',     dict) ==  1, "test isn't passed"
 
-print("if it's clean above, all tests are passed")
+  print("all tests are passed")
