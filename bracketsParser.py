@@ -1,48 +1,73 @@
 def bracketsParser(str, dict):
   ast = True
-  dst = False
+  pst = False
 
-  trgList = tuple(dict.keys()) + tuple(dict.values())
-  data = [[ast, v, i] for i, v in enumerate(str) if v in trgList]
+  print('another one:')
+  cnvList = ()
+  cnvDict = {}
 
-  revList = tuple(dict[k] for k in dict)
-  revDict = {dict[k]:k for k in dict}
+  revList = ()
 
+  i = 0
+
+  for p in dict.items():
+    cnvList += p
+    revList += (i + 1,)
+
+    for c in p:
+      cnvDict[c] = i
+      i += 1
+
+  print(cnvList, cnvDict, revList)
+  stt = []
+  val = []
+  pos = []
+
+  for i in range(len(str)):
+    if str[i] in cnvList:
+      print(str[i], 'in cnvList')
+      stt.append(ast)
+      val.append(cnvDict[str[i]])
+      pos.append(i)
+
+  print(stt, val, pos)
   e = False
 
-  for i in range(len(data)):
-    m = data[i]
-
-    if m[1] in revList:
+  for i in range(len(val)):
+    if val[i] in revList:
+      print(val[i], 'in revList')
       for j in range(i)[::-1]:
-        p = data[j]
-
-        if p[0]:
-          if p[1] == revDict[m[1]]:
-            p[0] = dst
-            m[0] = dst
+        if stt[j]:
+          if val[i] == val[j] + 1:
+            print(val[j], val[i], 'is pair, cross it')
+            stt[i] = pst
+            stt[j] = pst
 
             break
           else:
+            print(val[j], val[i], 'is not pair. error')
             e = True
-
-        if e:
-          break
+            break
 
       if e:
         break
 
   if not e:
-    i = -1
+    eps = -1
 
-    for p in data:
-      if p[0]:
-        i = p[2]
+    for i, v in enumerate(stt):
+      if v:
+        eps = pos[i]
         break
-
-    return i
   else:
-    return p[2]
+    eps = pos[j]
+
+  print('eps is', eps)
+  return eps
+
+
+
+  
 
 dict = {
   '(': ')',
