@@ -19,6 +19,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs: src
   exposed-modules:     Text.BracketsValidator
+  other-modules: Text.BracketsValidator.Types
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9
