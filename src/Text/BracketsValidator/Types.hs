@@ -1,36 +1,59 @@
 module Text.BracketsValidator.Types
-    ( Symbol (..)
+    ( Symbolic (..)
+    , Symbol (..)
+    , SymbolPrimitive (..)
     , State (..)
+    , Position (..), startingPosition, advanceLine, advanceColumn
     , Validation (..)
-    , isOpen
-    , isClose
-    , isBlank
-    , isMatching
     ) where
 
-data Symbol = ORound | OSquare | OCurled | CRound | CSquare | CCurled | Blank String
+data SymbolPrimitive = ORound | OSquare | OCurled | CRound | CSquare | CCurled | Blank String
     deriving (Eq, Show, Read)
 
-isOpen x = case x of
-    ORound -> True
-    OSquare -> True
-    OCurled -> True
-    _ -> False
+data Position = Position { line :: Integer, column :: Integer }
 
-isClose x = case x of
-    CRound -> True
-    CSquare -> True
-    CCurled -> True
-    _ -> False
+startingPosition = Position { line = 1, column = 1 }
+advanceLine p = p { line = (line p + 1), column = 0 }
+advanceColumn p = p { column = (column p + 1) }
 
-isBlank x = case x of
-    Blank _ -> True
-    _ -> False
+data Symbol = Symbol Position SymbolPrimitive
 
-isMatching ORound CRound = True
-isMatching OSquare CSquare = True
-isMatching OCurled CCurled = True
-isMatching _ _ = False
+smap f (Symbol p s) = f s
+
+class Symbolic s where
+    isOpen, isClose, isBlank :: s -> Bool
+    isMatching :: s -> s -> Bool
+
+instance Symbolic SymbolPrimitive where
+
+    -- TODO: Try applying Pattern Guards here.
+    isOpen x = case x of
+        ORound -> True
+        OSquare -> True
+        OCurled -> True
+        _ -> False
+
+    isClose x = case x of
+        CRound -> True
+        CSquare -> True
+        CCurled -> True
+        _ -> False
+
+    isBlank x = case x of
+        Blank _ -> True
+        _ -> False
+
+    -- TODO: Rewrite with "case (o, c) of".
+    isMatching ORound CRound = True
+    isMatching OSquare CSquare = True
+    isMatching OCurled CCurled = True
+    isMatching _ _ = False
+
+instance Symbolic Symbol where
+    isOpen = smap isOpen
+    isClose = smap isClose
+    isBlank = smap isBlank
+    isMatching (Symbol p s) (Symbol q t) = s `isMatching` t
 
 data State = State { status :: Bool }
     deriving (Eq, Read, Show)

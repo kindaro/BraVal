@@ -7,7 +7,7 @@ module Text.BracketsValidator
 
 import Text.BracketsValidator.Types
 
-lexer :: String -> [Symbol]
+lexer :: String -> [SymbolPrimitive]
 lexer [] = []
 lexer (x:xs)
     | x == '(' = proceed ORound
@@ -21,7 +21,7 @@ lexer (x:xs)
         _ -> proceed $ Blank (x:[])
     where proceed = (: lexer xs)
 
-insert :: Symbol -> [Symbol] -> Validation [Symbol]
+insert :: SymbolPrimitive -> [SymbolPrimitive] -> Validation [SymbolPrimitive]
 insert (Blank _) a = pure a
 insert s a
     | isOpen s = pure (s:a)
@@ -31,10 +31,10 @@ insert s a
     taint (Validation s a) = Validation (s { status = False }) a
     impure x = taint $ pure x
 
-parser :: [Symbol] -> Validation [Symbol]
+parser :: [SymbolPrimitive] -> Validation [SymbolPrimitive]
 parser = ( foldl (>>=) (return []) ) . (fmap insert)
 
-report :: Validation [Symbol] -> String
+report :: Validation [SymbolPrimitive] -> String
 report (Validation state stack)
     | status state && length stack == 0
         = "Validation succeeded."
