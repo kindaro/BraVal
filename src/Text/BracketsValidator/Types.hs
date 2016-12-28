@@ -3,20 +3,20 @@ module Text.BracketsValidator.Types
     , Symbol (..)
     , SymbolPrimitive (..)
     , State (..)
-    , Position (..), startingPosition, advanceLine, advanceColumn
+    , Cursor (..), startingCursor, advanceLine, advanceColumn
     , Validation (..)
     ) where
 
 data SymbolPrimitive = ORound | OSquare | OCurled | CRound | CSquare | CCurled | Blank String
     deriving (Eq, Show, Read)
 
-data Position = Position { line :: Integer, column :: Integer }
+data Cursor = Cursor { line :: Integer, column :: Integer }
 
-startingPosition = Position { line = 1, column = 1 }
+startingCursor = Cursor { line = 1, column = 1 }
 advanceLine p = p { line = (line p + 1), column = 0 }
 advanceColumn p = p { column = (column p + 1) }
 
-data Symbol = Symbol Position SymbolPrimitive
+data Symbol = Symbol Cursor SymbolPrimitive
 
 smap f (Symbol p s) = f s
 
