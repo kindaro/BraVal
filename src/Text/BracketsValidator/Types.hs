@@ -23,6 +23,7 @@ smap f (Symbol p s) = f s
 class Symbolic s where
     isOpen, isClose, isBlank :: s -> Bool
     isMatching :: s -> s -> Bool
+    lexer :: String -> [s]
 
 instance Symbolic SymbolPrimitive where
 
@@ -49,11 +50,30 @@ instance Symbolic SymbolPrimitive where
     isMatching OCurled CCurled = True
     isMatching _ _ = False
 
+    lexer [] = []
+    lexer (x:xs)
+        | (not . isBlank . fromChar) x
+            = proceed $ fromChar x
+        | otherwise = case lexer xs of
+            (Blank string) : _ -> Blank (x:string) : lexer (drop (length string) xs) -- Lookahead!
+            _ -> proceed $ Blank (x:[])
+        where
+        proceed = (: lexer xs)
+        fromChar x
+            | x == '(' = ORound
+            | x == '[' = OSquare
+            | x == '{' = OCurled
+            | x == '}' = CCurled
+            | x == ']' = CSquare
+            | x == ')' = CRound
+            | otherwise = Blank [x]
+
 instance Symbolic Symbol where
     isOpen = smap isOpen
     isClose = smap isClose
     isBlank = smap isBlank
     isMatching (Symbol p s) (Symbol q t) = s `isMatching` t
+    lexer = undefined
 
 data State = State { status :: Bool }
     deriving (Eq, Read, Show)

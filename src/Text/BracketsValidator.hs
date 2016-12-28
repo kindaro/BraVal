@@ -7,23 +7,9 @@ module Text.BracketsValidator
 
 import Text.BracketsValidator.Types
 
-lexer :: String -> [SymbolPrimitive]
-lexer [] = []
-lexer (x:xs)
-    | x == '(' = proceed ORound
-    | x == '[' = proceed OSquare
-    | x == '{' = proceed OCurled
-    | x == '}' = proceed CCurled
-    | x == ']' = proceed CSquare
-    | x == ')' = proceed CRound
-    | otherwise = case lexer xs of
-        (Blank string) : _ -> Blank (x:string) : lexer (drop (length string) xs) -- Lookahead!
-        _ -> proceed $ Blank (x:[])
-    where proceed = (: lexer xs)
-
-insert :: SymbolPrimitive -> [SymbolPrimitive] -> Validation [SymbolPrimitive]
-insert (Blank _) a = pure a
+insert :: (Symbolic a) => a -> [a] -> Validation [a]
 insert s a
+    | isBlank s = pure a
     | isOpen s = pure (s:a)
     | (not . null) a && (head a) `isMatching` s = pure (tail a)
     | otherwise = impure (s:a)
@@ -31,10 +17,10 @@ insert s a
     taint (Validation s a) = Validation (s { status = False }) a
     impure x = taint $ pure x
 
-parser :: [SymbolPrimitive] -> Validation [SymbolPrimitive]
+parser :: (Symbolic a) => [a] -> Validation [a]
 parser = ( foldl (>>=) (return []) ) . (fmap insert)
 
-report :: Validation [SymbolPrimitive] -> String
+report :: Validation [a] -> String
 report (Validation state stack)
     | status state && length stack == 0
         = "Validation succeeded."

@@ -7,6 +7,7 @@ main = do
     test "(meow]" (Validation (State {status = False}) [CSquare,ORound])
     test "}meow)" (Validation (State {status = False}) [CRound,CCurled])
 
+test :: String -> Validation [SymbolPrimitive] -> IO ()
 test expression expectation = do
         putStrLn $ "Testing " ++ (show expression) ++ " ..."
         putStrLn $ "Expectation: " ++ (show expectation)
