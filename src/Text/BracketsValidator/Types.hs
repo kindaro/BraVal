@@ -32,14 +32,14 @@ isMatching OSquare CSquare = True
 isMatching OCurled CCurled = True
 isMatching _ _ = False
 
-data State = State { position :: Integer, status :: Bool }
+data State = State { status :: Bool }
     deriving (Eq, Read, Show)
 
 instance Monoid State where
-    mempty = State { position = 0, status = True }
+    mempty = State { status = True }
     x `mappend` y
-        | status x && status y = State { position = position x + position y, status = True }
-        | otherwise = State { position = position x + position y, status = False }
+        | status x && status y = State { status = True }
+        | otherwise = State { status = False }
 
 data Validation x = Validation State x
     deriving (Eq, Read, Show)

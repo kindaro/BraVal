@@ -22,12 +22,8 @@ lexer (x:xs)
     where proceed = (: lexer xs)
 
 insert :: Symbol -> [Symbol] -> Validation [Symbol]
-insert s a = (flip add 1) $ insert' s a
-    where
-    add (Validation s x) n = Validation ( s { position = position s + n }) x
-
-insert' (Blank _) a = pure a
-insert' s a
+insert (Blank _) a = pure a
+insert s a
     | isOpen s = pure (s:a)
     | (not . null) a && (head a) `isMatching` s = pure (tail a)
     | otherwise = impure (s:a)
