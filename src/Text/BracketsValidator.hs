@@ -37,10 +37,8 @@ parser = ( foldl (>>=) (return []) ) . (fmap insert)
 report :: Validation [Symbol] -> String
 report (Validation state stack)
     | status state && length stack == 0
-        = "Validation succeeded with " ++ (show $ position state) ++ " symbols parsed."
+        = "Validation succeeded."
     | status state
-        = "Validation incomplete with " ++ (show $ position state) ++ " symbols parsed and "
-            ++ (show $ length stack) ++ " symbols left in stack."
-    | otherwise = "Validation failed after " ++ (show $ position state) ++ " symbols parsed. "
-            ++ (show $ length stack) ++ " symbols left in stack."
+        = "Validation incomplete."
+    | otherwise = "Validation failed."
 
