@@ -59,14 +59,15 @@ instance Symbolic SymbolPrimitive where
             _ -> proceed $ Blank (x:[])
         where
         proceed = (: lexer xs)
-        fromChar x
-            | x == '(' = ORound
-            | x == '[' = OSquare
-            | x == '{' = OCurled
-            | x == '}' = CCurled
-            | x == ']' = CSquare
-            | x == ')' = CRound
-            | otherwise = Blank [x]
+
+fromChar x
+    | x == '(' = ORound
+    | x == '[' = OSquare
+    | x == '{' = OCurled
+    | x == '}' = CCurled
+    | x == ']' = CSquare
+    | x == ')' = CRound
+    | otherwise = Blank [x]
 
 instance Symbolic Symbol where
     isOpen = smap isOpen
