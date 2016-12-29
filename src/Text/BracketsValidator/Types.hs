@@ -7,6 +7,8 @@ module Text.BracketsValidator.Types
     , Validation (..)
     ) where
 
+import Data.List (groupBy)
+
 data SymbolPrimitive = ORound | OSquare | OCurled | CRound | CSquare | CCurled | Blank String
     deriving (Eq, Show, Read)
 
@@ -69,12 +71,30 @@ fromChar x
     | x == ')' = CRound
     | otherwise = Blank [x]
 
+(>>>) = flip (.)
+
 instance Symbolic Symbol where
     isOpen = smap isOpen
     isClose = smap isClose
     isBlank = smap isBlank
     isMatching (Symbol p s) (Symbol q t) = s `isMatching` t
-    lexer = undefined
+
+    lexer = lines >>> (zipMatrix grid) >>> concat >>> (fmap mkSymbol) >>> (groupBy eq)
+                                                                                >>> (fmap glue)
+        where
+        eq x y
+            | (not . isBlank) x || (not . isBlank) y = False
+            | otherwise = True
+        zipMatrix = zipWith $ zipWith (,)
+        grid = fmap (\x -> fmap (\y -> (x,y)) [1..] ) [1..]
+        mkSymbol ((line,char),s) = Symbol (Cursor { line = line, column = char }) (fromChar s)
+        glue :: [Symbol] -> Symbol
+        glue [] = undefined
+        glue [x] = x
+        glue ((Symbol cursor (Blank s)) : xs)
+            = Symbol cursor (Blank (s ++ (extract . glue $ xs)))
+        glue xs = undefined
+        extract (Symbol _ (Blank x)) = x
 
 data State = State { status :: Bool }
     deriving (Eq, Read, Show)
