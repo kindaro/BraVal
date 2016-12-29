@@ -1,6 +1,5 @@
 module Text.BracketsValidator
-    ( lexer
-    , parser
+    ( parser
     , report
     , module Text.BracketsValidator.Types
     ) where
