@@ -10,13 +10,13 @@ module Text.BracketsValidator.Types
 data SymbolPrimitive = ORound | OSquare | OCurled | CRound | CSquare | CCurled | Blank String
     deriving (Eq, Show, Read)
 
-data Cursor = Cursor { line :: Integer, column :: Integer }
+data Cursor = Cursor { line :: Integer, column :: Integer } deriving Show
 
 startingCursor = Cursor { line = 1, column = 1 }
 advanceLine p = p { line = (line p + 1), column = 0 }
 advanceColumn p = p { column = (column p + 1) }
 
-data Symbol = Symbol Cursor SymbolPrimitive
+data Symbol = Symbol Cursor SymbolPrimitive deriving Show
 
 smap f (Symbol p s) = f s
 
