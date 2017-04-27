@@ -4,17 +4,18 @@ module Text.BracketsValidator
     ) where
 
 import Text.BracketsValidator.Types
+import Data.Monoid
 
-insert :: (Symbolic a) => a -> [a] -> Validation [a]
+insert :: (Symbolic a) => a -> [a] -> Validation [String] [a]
 insert s a
     | isBlank s = pure a
     | isOpen s = pure (s:a)
     | (not . null) a && (head a) `isMatching` s = pure (tail a)
-    | otherwise = impure (s:a)
+    | otherwise = (taint ["Error!"]) . pure $ (a)
     where
-    taint (Validation s a) = Validation (s { status = False }) a
-    impure x = taint $ pure x
+        taint :: Monoid state => state -> Validation state a -> Validation state a
+        taint message (Validation s x) = Validation (s <> message) x
 
-parser :: (Symbolic a) => [a] -> Validation [a]
+parser :: (Symbolic a) => [a] -> Validation [String] [a]
 parser = ( foldl (>>=) (return []) ) . (fmap insert)
 

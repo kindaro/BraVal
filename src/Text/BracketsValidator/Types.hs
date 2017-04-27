@@ -2,12 +2,13 @@ module Text.BracketsValidator.Types
     ( Symbolic (..)
     , Symbol (..)
     , SymbolPrimitive (..)
-    , State (..)
     , Cursor (..), startingCursor, advanceLine, advanceColumn
     , Validation (..)
     ) where
 
+import Control.Arrow ((>>>))
 import Data.List (groupBy)
+import Data.Monoid ((<>))
 
 data SymbolPrimitive = ORound | OSquare | OCurled | CRound | CSquare | CCurled | Blank String
     deriving (Eq, Show, Read)
@@ -71,8 +72,6 @@ fromChar x
     | x == ')' = CRound
     | otherwise = Blank [x]
 
-(>>>) = flip (.)
-
 instance Symbolic Symbol where
     isOpen = smap isOpen
     isClose = smap isClose
@@ -96,30 +95,22 @@ instance Symbolic Symbol where
         glue xs = undefined
         extract (Symbol _ (Blank x)) = x
 
-data State = State { status :: Bool }
+data Validation state stack = Validation state stack
     deriving (Eq, Read, Show)
 
-instance Monoid State where
-    mempty = State { status = True }
-    x `mappend` y
-        | status x && status y = State { status = True }
-        | otherwise = State { status = False }
+instance Functor (Validation a) where
+    f `fmap` Validation s x = Validation s (f x)
 
-data Validation x = Validation State x
-    deriving (Eq, Read, Show)
+instance (Monoid state) => Applicative (Validation state) where
 
-instance Functor Validation where
-    fmap f (Validation s a) = Validation s (f a)
+    pure = Validation mempty
 
-instance Applicative Validation where
-    pure x = Validation mempty x
-    (Validation s f) <*> (Validation t x) = Validation (s `mappend` t) (f x)
+    (Validation s f) <*> (Validation t x) = f <$> Validation (s <> t) x
 
-instance Monad Validation where
-    a@(Validation s x) >>= f
-        | status s == False = Validation s (unf x) -- Do nothing.
-        | otherwise = s `into` f x
-        -- Maybe I don't need this part.
-        where unpack (Validation s a) = a
-              unf = unpack . f
-              into s (Validation t y) = Validation (s `mappend` t) y
+instance (Monoid state) => Monad (Validation state) where
+
+    a >>= f = join . (f <$>) $ a
+
+        where
+        join (Validation s (Validation t x)) = Validation (s <> t) x
+
