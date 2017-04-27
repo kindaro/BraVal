@@ -36,3 +36,4 @@ executable BracketsValidator
     hs-source-dirs: src
     main-is: Main.hs
     build-depends: base >=4.9 && <4.10
+    other-modules: Text.BracketsValidator, Text.BracketsValidator.Types
