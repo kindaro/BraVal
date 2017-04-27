@@ -25,7 +25,7 @@ report = runWriter >>> ( \(left, extra) ->
 
         reportOne :: Symbol -> Text
         reportOne symbol =
-            Lazy.toStrict $ substitute "Character '${c}' at line $line, column $column." (contextOne symbol)
+            Lazy.toStrict $ substitute "Character '${c}' at line $line, column $column.\n" (contextOne symbol)
 
         contextOne :: Symbol -> Text -> Text
 
