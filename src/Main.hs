@@ -2,5 +2,6 @@ module Main where
 
 import Text.BraVal
 import Control.Monad.Trans.Writer
+import Text.BraVal.Report
 
-main = interact (show . runWriter . parser . (lexer :: String -> [Symbol]))
+main = interact (report . parser . (lexer :: String -> [Symbol]))

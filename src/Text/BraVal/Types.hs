@@ -1,8 +1,11 @@
+{-# LANGUAGE PatternGuards #-}
+
 module Text.BraVal.Types
     ( Symbolic (..)
     , Symbol (..)
     , SymbolPrimitive (..)
     , Cursor (..), startingCursor, advanceLine, advanceColumn
+    , table
     ) where
 
 import Control.Arrow ((>>>))
@@ -25,14 +28,17 @@ class Symbolic s where
     isMatching :: s -> s -> Bool
     lexer :: String -> [s]
 
-fromChar x
-    | x == '(' = ORound
-    | x == '[' = OSquare
-    | x == '{' = OCurled
-    | x == '}' = CCurled
-    | x == ']' = CSquare
-    | x == ')' = CRound
-    | otherwise = Blank [x]
+table = [  ( '(', ORound  )
+        ,  ( '[', OSquare )
+        ,  ( '{', OCurled )
+        ,  ( '}', CCurled )
+        ,  ( ']', CSquare )
+        ,  ( ')', CRound  )
+        ]
+
+fromChar char
+    | Just symbol <- lookup char table = symbol
+    | otherwise = Blank [char]
 
 smap f (Symbol p s) = f s
 
