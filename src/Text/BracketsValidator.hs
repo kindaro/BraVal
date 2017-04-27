@@ -1,6 +1,5 @@
 module Text.BracketsValidator
     ( parser
-    , report
     , module Text.BracketsValidator.Types
     ) where
 
@@ -18,12 +17,4 @@ insert s a
 
 parser :: (Symbolic a) => [a] -> Validation [a]
 parser = ( foldl (>>=) (return []) ) . (fmap insert)
-
-report :: Validation [a] -> String
-report (Validation state stack)
-    | status state && length stack == 0
-        = "Validation succeeded."
-    | status state
-        = "Validation incomplete."
-    | otherwise = "Validation failed."
 

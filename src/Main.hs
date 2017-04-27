@@ -2,4 +2,4 @@ module Main where
 
 import Text.BracketsValidator
 
-main = interact (report . parser . (lexer :: String -> [SymbolPrimitive]))
+main = interact (undefined . parser . (lexer :: String -> [SymbolPrimitive]))
