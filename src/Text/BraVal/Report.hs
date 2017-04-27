@@ -18,7 +18,8 @@ type Text = Text.Text
 
 report :: Writer [Symbol] [Symbol] -> String
 report = runWriter >>> ( \(left, extra) ->
-    Text.concat [if length left /= 0 then reportLeft left else "", if length extra /= 0 then reportExtra extra else ""] `Text.append` "\n" )
+    if length left == 0 && length extra == 0 then "Everything matches.\n" else (
+    (if length left /= 0 then reportLeft left else "") `Text.append` (if length extra /= 0 then reportExtra extra else "")))
             >>> Text.unpack
 
         where
@@ -42,5 +43,5 @@ report = runWriter >>> ( \(left, extra) ->
         contextOneColumn (Symbol cursor _) = Text.pack . show $ column cursor
 
 
-        reportLeft left = "Left open:\n" `Text.append` Text.concat (reportOne <$> left)
+        reportLeft left = "Left open:\n" `Text.append` Text.concat (reportOne <$> reverse left)
         reportExtra extra = "Close nothing:\n" `Text.append` Text.concat (reportOne <$> extra)
