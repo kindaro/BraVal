@@ -1,4 +1,4 @@
-module Text.BracketsValidator.Types
+module Text.BraVal.Types
     ( Symbolic (..)
     , Symbol (..)
     , SymbolPrimitive (..)

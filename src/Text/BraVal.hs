@@ -1,9 +1,9 @@
-module Text.BracketsValidator
+module Text.BraVal
     ( parser
-    , module Text.BracketsValidator.Types
+    , module Text.BraVal.Types
     ) where
 
-import Text.BracketsValidator.Types
+import Text.BraVal.Types
 import Data.Monoid ((<>))
 import Control.Monad.Trans.Writer
 import Control.Arrow ((>>>))

@@ -1,6 +1,6 @@
 module Main where
 
-import Text.BracketsValidator
+import Text.BraVal
 import Control.Monad.Trans.Writer
 
 main = interact (show . runWriter . parser . (lexer :: String -> [Symbol]))
