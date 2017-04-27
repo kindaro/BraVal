@@ -21,16 +21,24 @@ advanceColumn p = p { column = (column p + 1) }
 
 data Symbol = Symbol Cursor SymbolPrimitive deriving Show
 
-smap f (Symbol p s) = f s
-
 class Symbolic s where
     isOpen, isClose, isBlank :: s -> Bool
     isMatching :: s -> s -> Bool
     lexer :: String -> [s]
 
+fromChar x
+    | x == '(' = ORound
+    | x == '[' = OSquare
+    | x == '{' = OCurled
+    | x == '}' = CCurled
+    | x == ']' = CSquare
+    | x == ')' = CRound
+    | otherwise = Blank [x]
+
+smap f (Symbol p s) = f s
+
 instance Symbolic SymbolPrimitive where
 
-    -- TODO: Try applying Pattern Guards here.
     isOpen x = case x of
         ORound -> True
         OSquare -> True
@@ -47,52 +55,50 @@ instance Symbolic SymbolPrimitive where
         Blank _ -> True
         _ -> False
 
-    -- TODO: Rewrite with "case (o, c) of".
-    isMatching ORound CRound = True
-    isMatching OSquare CSquare = True
-    isMatching OCurled CCurled = True
-    isMatching _ _ = False
+    o `isMatching` c = case (o,c) of
+        (ORound, CRound)   -> True
+        (OSquare, CSquare) -> True
+        (OCurled, CCurled) -> True
+        _                  -> False
 
     lexer [] = []
     lexer (x:xs)
-        | (not . isBlank . fromChar) x
-            = proceed $ fromChar x
+        | (not . isBlank . fromChar) x = proceed $ fromChar x
         | otherwise = case lexer xs of
             (Blank string) : _ -> Blank (x:string) : lexer (drop (length string) xs) -- Lookahead!
-            _ -> proceed $ Blank (x:[])
-        where
-        proceed = (: lexer xs)
+            _                  -> proceed $ Blank (x:[])
 
-fromChar x
-    | x == '(' = ORound
-    | x == '[' = OSquare
-    | x == '{' = OCurled
-    | x == '}' = CCurled
-    | x == ']' = CSquare
-    | x == ')' = CRound
-    | otherwise = Blank [x]
+        where proceed = (: lexer xs)
 
 instance Symbolic Symbol where
+
     isOpen = smap isOpen
     isClose = smap isClose
     isBlank = smap isBlank
-    isMatching (Symbol p s) (Symbol q t) = s `isMatching` t
+    (Symbol p s) `isMatching` (Symbol q t) = s `isMatching` t
 
-    lexer = lines >>> (zipMatrix grid) >>> concat >>> (fmap mkSymbol) >>> (groupBy eq)
-                                                                                >>> (fmap glue)
+    lexer = lines >>> (zipMatrix grid) >>> concat
+        >>> (fmap mkSymbol) >>> (groupBy eq) >>> (fmap glue)
+
         where
+
         eq x y
             | (not . isBlank) x || (not . isBlank) y = False
             | otherwise = True
+
         zipMatrix = zipWith $ zipWith (,)
+
         grid = fmap (\x -> fmap (\y -> (x,y)) [1..] ) [1..]
+
         mkSymbol ((line,char),s) = Symbol (Cursor { line = line, column = char }) (fromChar s)
+
         glue :: [Symbol] -> Symbol
-        glue [] = undefined
+        glue [] = undefined -- Should never happen.
         glue [x] = x
-        glue ((Symbol cursor (Blank s)) : xs)
-            = Symbol cursor (Blank (s ++ (extract . glue $ xs)))
-        glue xs = undefined
+        glue ((Symbol c (Blank s)) : xs)
+            = Symbol c (Blank (s ++ (extract . glue $ xs)))
+        glue xs = undefined -- Should never happen.
+
         extract (Symbol _ (Blank x)) = x
 
 data Validation state stack = Validation state stack

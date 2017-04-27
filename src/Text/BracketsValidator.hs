@@ -4,7 +4,7 @@ module Text.BracketsValidator
     ) where
 
 import Text.BracketsValidator.Types
-import Data.Monoid
+import Data.Monoid ((<>))
 
 insert :: (Symbolic a) => a -> [a] -> Validation [String] [a]
 insert s a
