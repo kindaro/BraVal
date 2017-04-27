@@ -5,17 +5,16 @@ module Text.BracketsValidator
 
 import Text.BracketsValidator.Types
 import Data.Monoid ((<>))
+import Control.Monad.Trans.Writer
+import Control.Arrow ((>>>))
 
-insert :: (Symbolic a) => a -> [a] -> Validation [String] [a]
+insert :: (Symbolic a) => a -> [a] -> Writer [a] [a]
 insert s a
     | isBlank s = pure a
     | isOpen s = pure (s:a)
     | (not . null) a && (head a) `isMatching` s = pure (tail a)
-    | otherwise = (taint ["Error!"]) . pure $ (a)
-    where
-        taint :: Monoid state => state -> Validation state a -> Validation state a
-        taint message (Validation s x) = Validation (s <> message) x
+    | otherwise = curry writer a [s]
 
-parser :: (Symbolic a) => [a] -> Validation [String] [a]
-parser = ( foldl (>>=) (return []) ) . (fmap insert)
+parser :: (Symbolic a) => [a] -> Writer [a] [a]
+parser = (fmap insert) >>> foldl (>>=) (pure mempty)
 

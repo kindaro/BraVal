@@ -1,5 +1,6 @@
 module Main where
 
 import Text.BracketsValidator
+import Control.Monad.Trans.Writer
 
-main = interact (undefined . parser . (lexer :: String -> [SymbolPrimitive]))
+main = interact (show . runWriter . parser . (lexer :: String -> [Symbol]))

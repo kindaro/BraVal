@@ -3,7 +3,6 @@ module Text.BracketsValidator.Types
     , Symbol (..)
     , SymbolPrimitive (..)
     , Cursor (..), startingCursor, advanceLine, advanceColumn
-    , Validation (..)
     ) where
 
 import Control.Arrow ((>>>))
@@ -100,23 +99,4 @@ instance Symbolic Symbol where
         glue xs = undefined -- Should never happen.
 
         extract (Symbol _ (Blank x)) = x
-
-data Validation state stack = Validation state stack
-    deriving (Eq, Read, Show)
-
-instance Functor (Validation a) where
-    f `fmap` Validation s x = Validation s (f x)
-
-instance (Monoid state) => Applicative (Validation state) where
-
-    pure = Validation mempty
-
-    (Validation s f) <*> (Validation t x) = f <$> Validation (s <> t) x
-
-instance (Monoid state) => Monad (Validation state) where
-
-    a >>= f = join . (f <$>) $ a
-
-        where
-        join (Validation s (Validation t x)) = Validation (s <> t) x
 
